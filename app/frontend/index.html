@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pulse Ledger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css?v=20260406a">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="hero">
+            <div class="hero-copy">
+                <p class="eyebrow">Personal Finance Dashboard</p>
+                <h1>Run your money from one clean screen.</h1>
+                <p class="hero-text">
+                    Register, sign in, manage accounts, create categories, and track transactions against your FastAPI backend.
+                </p>
+                <div class="hero-actions">
+                    <button class="ghost-button" id="refreshAllBtn" type="button">Refresh Data</button>
+                    <span class="status-pill" id="apiStatus">Checking API...</span>
+                </div>
+            </div>
+            <div class="hero-panel">
+                <div class="metric-card">
+                    <span>Total Balance</span>
+                    <strong id="totalBalance">Rs 0.00</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Total Income</span>
+                    <strong id="totalIncome">Rs 0.00</strong>
+                </div>
+                <div class="metric-card">
+                    <span>Total Expense</span>
+                    <strong id="totalExpense">Rs 0.00</strong>
+                </div>
+                <div class="metric-card budget-card">
+                    <span>Budgets</span>
+                    <strong id="budgetsCount">0</strong>
+                    <small id="budgetHealth">Budget tracking is live.</small>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+            <section class="panel wide-panel">
+                <div class="panel-head">
+                    <h2>Financial Snapshot</h2>
+                    <p>A quick read on balances, cash flow, category mix, and monthly spending trends.</p>
+                </div>
+                <div class="snapshot-grid">
+                    <article class="snapshot-card balance-card">
+                        <span>Net Position</span>
+                        <strong id="snapshotBalance">Rs 0.00</strong>
+                        <small id="accountsCount">0 accounts connected</small>
+                    </article>
+                    <article class="snapshot-card income-card">
+                        <span>Income This Dataset</span>
+                        <strong id="snapshotIncome">Rs 0.00</strong>
+                        <small id="transactionsCount">0 transactions tracked</small>
+                    </article>
+                    <article class="snapshot-card expense-card">
+                        <span>Expenses This Dataset</span>
+                        <strong id="snapshotExpense">Rs 0.00</strong>
+                        <small id="snapshotNetFlow">Net flow: Rs 0.00</small>
+                    </article>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Category Mix</h2>
+                    <p>Expense distribution by category.</p>
+                </div>
+                <div id="categoryPieChart" class="chart-card"></div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Monthly Spending</h2>
+                    <p>Expense trend across months.</p>
+                </div>
+                <div id="monthlySpendingChart" class="chart-card"></div>
+            </section>
+
+            <section class="panel wide-panel">
+                <div class="panel-head">
+                    <h2>Income vs Expense</h2>
+                    <p>Month-by-month comparison of inflow and outflow.</p>
+                </div>
+                <div id="incomeExpenseChart" class="chart-card chart-card-wide"></div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Auth</h2>
+                    <p>Create an account or log in to load your dashboard.</p>
+                </div>
+                <div class="auth-grid">
+                    <form id="registerForm" class="stack-form">
+                        <h3>Register</h3>
+                        <label>
+                            <span>Username</span>
+                            <input id="reg_username" name="username" type="text" placeholder="hemant" required>
+                        </label>
+                        <label>
+                            <span>Email</span>
+                            <input id="reg_email" name="email" type="email" placeholder="you@example.com" required>
+                        </label>
+                        <label>
+                            <span>Password</span>
+                            <input id="reg_password" name="password" type="password" minlength="8" placeholder="Minimum 8 characters" required>
+                        </label>
+                        <button type="submit">Create Account</button>
+                    </form>
+
+                    <form id="loginForm" class="stack-form">
+                        <h3>Login</h3>
+                        <label>
+                            <span>Email</span>
+                            <input id="login_email" name="email" type="email" placeholder="you@example.com" required>
+                        </label>
+                        <label>
+                            <span>Password</span>
+                            <input id="login_password" name="password" type="password" minlength="8" required>
+                        </label>
+                        <button type="submit">Sign In</button>
+                        <button class="ghost-button" id="logoutBtn" type="button">Log Out</button>
+                    </form>
+                </div>
+                <div class="token-box">
+                    <span>Session</span>
+                    <code id="tokenPreview">No active token</code>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Create Records</h2>
+                    <p>Add new accounts, categories, and transactions without leaving the page.</p>
+                </div>
+                <div class="forms-grid">
+                    <form id="accountForm" class="stack-form">
+                        <h3>New Account</h3>
+                        <label>
+                            <span>Name</span>
+                            <input name="name" type="text" placeholder="Main Wallet" required>
+                        </label>
+                        <label>
+                            <span>Type</span>
+                            <input name="type" type="text" placeholder="savings" required>
+                        </label>
+                        <label>
+                            <span>Opening Balance</span>
+                            <input name="balance" type="number" min="0" step="0.01" placeholder="0.00" required>
+                        </label>
+                        <button type="submit">Add Account</button>
+                    </form>
+
+                    <form id="categoryForm" class="stack-form">
+                        <h3>New Category</h3>
+                        <label>
+                            <span>Name</span>
+                            <input name="name" type="text" placeholder="Groceries" required>
+                        </label>
+                        <label>
+                            <span>Type</span>
+                            <select name="type" required>
+                                <option value="expense">Expense</option>
+                                <option value="income">Income</option>
+                            </select>
+                        </label>
+                        <button type="submit">Add Category</button>
+                    </form>
+
+                    <form id="transactionForm" class="stack-form">
+                        <h3>New Transaction</h3>
+                        <label>
+                            <span>Account</span>
+                            <select id="trans_account" name="account_id" required></select>
+                        </label>
+                        <label>
+                            <span>Category</span>
+                            <select id="trans_category" name="category_id" required></select>
+                        </label>
+                        <label>
+                            <span>Type</span>
+                            <input id="trans_type_display" type="text" value="Select a category first" readonly>
+                        </label>
+                        <label>
+                            <span>Amount</span>
+                            <input name="amount" type="number" min="0" step="0.01" placeholder="0.00" required>
+                        </label>
+                        <label>
+                            <span>Description</span>
+                            <input name="description" type="text" placeholder="Coffee, salary, fuel...">
+                        </label>
+                        <button type="submit">Add Transaction</button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="panel wide-panel">
+                <div class="panel-head">
+                    <h2>Budgets</h2>
+                    <p>Create a budget from category allocations and let the total be calculated automatically.</p>
+                </div>
+                <div class="budget-layout">
+                    <form id="budgetForm" class="stack-form budget-form">
+                        <h3>New Budget</h3>
+                        <label>
+                            <span>Name</span>
+                            <input name="name" type="text" placeholder="April Essentials" required>
+                        </label>
+                        <div class="budget-fields">
+                            <label>
+                                <span>Period</span>
+                                <select name="period" required>
+                                    <option value="monthly">Monthly</option>
+                                    <option value="weekly">Weekly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="budget-fields">
+                            <label>
+                                <span>Start Date</span>
+                                <input name="start_date" type="date" required>
+                            </label>
+                            <label>
+                                <span>End Date</span>
+                                <input name="end_date" type="date" required>
+                            </label>
+                        </div>
+                        <div class="budget-fields">
+                            <label>
+                                <span>Alert %</span>
+                                <input name="threshold_percentage" type="number" min="1" max="100" value="80" required>
+                            </label>
+                            <label class="checkbox-row">
+                                <input name="is_recurring" type="checkbox">
+                                <span>Recurring budget</span>
+                            </label>
+                        </div>
+                        <div class="allocation-head">
+                            <h4>Category Allocations</h4>
+                            <button class="ghost-button small-button" id="addBudgetCategoryBtn" type="button">Add Row</button>
+                        </div>
+                        <p class="allocation-note" id="budgetCategoryHint">
+                            Log in and create at least one expense category to assign it to a budget.
+                        </p>
+                        <p class="allocation-note">
+                            Tip: use a category named <strong>General</strong> or <strong>Overall</strong> to track all expense spending for the month.
+                        </p>
+                        <div id="budgetCategoriesRows" class="allocation-list"></div>
+                        <button type="submit">Create Budget</button>
+                    </form>
+
+                    <div class="budget-summary">
+                        <div class="budget-summary-card">
+                            <span>Total Planned</span>
+                            <strong id="plannedBudgetAmount">Rs 0.00</strong>
+                        </div>
+                        <div class="budget-summary-card">
+                            <span>Total Spent</span>
+                            <strong id="spentBudgetAmount">Rs 0.00</strong>
+                        </div>
+                        <div class="budget-summary-card">
+                            <span>Remaining</span>
+                            <strong id="remainingBudgetAmount">Rs 0.00</strong>
+                        </div>
+                        <div class="budget-summary-card">
+                            <span>Average Usage</span>
+                            <strong id="budgetUsageAverage">0%</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Accounts</h2>
+                    <p>Your current balances by account.</p>
+                </div>
+                <div class="data-list" id="accountsList"></div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <h2>Categories</h2>
+                    <p>Income and expense buckets available for transactions.</p>
+                </div>
+                <div class="chip-list" id="categoriesList"></div>
+            </section>
+
+            <section class="panel wide-panel">
+                <div class="panel-head">
+                    <h2>Budget Tracker</h2>
+                    <p>Current budgets with remaining amount, category-level usage, and progress bars.</p>
+                </div>
+                <div class="budget-cards" id="budgetsList"></div>
+            </section>
+
+            <section class="panel wide-panel">
+                <div class="panel-head">
+                    <h2>Recent Transactions</h2>
+                    <p>Latest activity from your account history.</p>
+                </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                                <th>Amount</th>
+                                <th>Account</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionsTable"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="panel wide-panel">
+                <div class="panel-head">
+                    <h2>Activity Log</h2>
+                    <p>Request feedback and API responses appear here.</p>
+                </div>
+                <pre id="activityLog" class="activity-log">Waiting for activity...</pre>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/scripts.js?v=20260406a"></script>
+</body>
+</html>
