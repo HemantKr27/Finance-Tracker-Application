@@ -14,14 +14,14 @@ def create_budget(
         category.allocated_amount for category in budget_data.categories
     )
 
-    if total_allocated > budget_data.total_budget:
+    if total_allocated > budget_data.amount:
         raise ValueError("Total category allocation cannot exceed total budget")
 
     existing_budget = (
         db.query(Budget)
         .filter(
             Budget.user_id == user_id,
-            Budget.period_type == budget_data.period_type,
+            Budget.period_type == budget_data.period,
             Budget.start_date == budget_data.start_date,
             Budget.end_date == budget_data.end_date,
             Budget.status == "active"
@@ -35,8 +35,8 @@ def create_budget(
     budget = Budget(
         user_id=user_id,
         name=budget_data.name,
-        period_type=budget_data.period_type,
-        total_budget=budget_data.total_budget,
+        period_type=budget_data.period,
+        total_budget=budget_data.amount,
         currency=budget_data.currency,
         start_date=budget_data.start_date,
         end_date=budget_data.end_date,
