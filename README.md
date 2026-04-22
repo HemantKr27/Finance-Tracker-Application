@@ -56,7 +56,7 @@ app/
 • models/ contains SQLAlchemy models
 • schemas/ contains Pydantic request and response schemas
 
-##Database Design
+## Database Design
 
 The application is built around the following core entities:
 
@@ -67,9 +67,9 @@ Transaction: stores user income and expense records
 Budget: stores user-defined budget plans
 BudgetCategory: stores category-wise budget allocation inside a budget
 
-##ER Diagram / Relationships
+## ER Diagram / Relationships
 
-#Main Relationships
+# Main Relationships
 
 One user can have many accounts
 One user can have many transactions
@@ -81,7 +81,7 @@ One transaction belongs to one category
 One budget belongs to one user
 One budget can have multiple category allocations through BudgetCategory
 
-##Installation
+## Installation
 1. Clone the repository
 git clone https://github.com/your-username/finance-tracker-api.git
 cd finance-tracker-api
@@ -101,7 +101,7 @@ alembic upgrade head
 
 5. Environment Variables
 
-#Create a .env file in the project root and add the required environment variables:
+# Create a .env file in the project root and add the required environment variables:
 
 PROJECT_NAME=Finance Tracker API
 DATABASE_URL=postgresql://postgres:password@localhost:5432/finance_db
