@@ -11,12 +11,12 @@ Finance Tracker API is a backend-focused personal finance management application
 - Account creation and management
 - Income and expense transaction tracking
 - Category-based transaction organization
-- Budget creation and budget monitoring
+- Budget creation and spending monitoring
 - Category-wise budget allocation
 - Input validation using Pydantic
 - Database modeling and relationships using SQLAlchemy
 - Database schema migrations using Alembic
-- Docker-ready backend setup
+- Dockerized backend setup for consistent deployment
 
 ## Tech Stack
 
@@ -30,6 +30,7 @@ Finance Tracker API is a backend-focused personal finance management application
 
 ## Project Structure
 
+```text
 app/
 ├── api/
 │   ├── deps.py
@@ -48,61 +49,83 @@ app/
 ├── models/
 ├── schemas/
 └── main.py
+```
 
-• api/ contains route definitions and API versioning
-• core/ contains configuration and security logic
-• crud/ contains database operation logic
-• db/ contains database setup, session, and initialization
-• models/ contains SQLAlchemy models
-• schemas/ contains Pydantic request and response schemas
+- `api/` contains route definitions and API versioning
+- `core/` contains configuration and security logic
+- `crud/` contains database operation logic
+- `db/` contains database setup, session, and initialization
+- `models/` contains SQLAlchemy models
+- `schemas/` contains Pydantic request and response schemas
 
 ## Database Design
 
 The application is built around the following core entities:
 
-User: stores user credentials and account ownership
-Account: stores financial accounts such as cash, bank, or wallet
-Category: stores transaction categories such as food, salary, rent, or transport
-Transaction: stores user income and expense records
-Budget: stores user-defined budget plans
-BudgetCategory: stores category-wise budget allocation inside a budget
+- `User`: stores user credentials and account ownership
+- `Account`: stores financial accounts such as cash, bank, or wallet
+- `Category`: stores transaction categories such as food, salary, rent, or transport
+- `Transaction`: stores user income and expense records
+- `Budget`: stores user-defined budget plans
+- `BudgetCategory`: stores category-wise budget allocation inside a budget
 
 ## ER Diagram / Relationships
 
-# Main Relationships
+### Main Relationships
 
-One user can have many accounts
-One user can have many transactions
-One user can have many categories
-One user can have many budgets
-One account belongs to one user
-One transaction belongs to one account
-One transaction belongs to one category
-One budget belongs to one user
-One budget can have multiple category allocations through BudgetCategory
+- One user can have many accounts
+- One user can have many transactions
+- One user can have many categories
+- One user can have many budgets
+- One account belongs to one user
+- One transaction belongs to one account
+- One transaction belongs to one category
+- One budget belongs to one user
+- One budget can have multiple category allocations through BudgetCategory
 
 ## Installation
-1. Clone the repository
+
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/your-username/finance-tracker-api.git
 cd finance-tracker-api
+```
 
-2. Create and activate a virtual environment
+### 2. Create and activate a virtual environment
+
+For Linux/macOS:
+
+```bash
 python -m venv .venv
 source .venv/bin/activate
+```
 
 For Windows:
+
+```bash
+python -m venv .venv
 .venv\Scripts\activate
+```
 
-3. Install dependencies
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
-4. Run database migrations
+### 4. Run database migrations
+
+Make sure PostgreSQL is running and the database exists before running migrations.
+
+```bash
 alembic upgrade head
+```
 
-5. Environment Variables
+### 5. Environment Variables
 
-# Create a .env file in the project root and add the required environment variables:
-
+#### Create a `.env` file in the project root and add:
+```bash
 PROJECT_NAME=Finance Tracker API
 DATABASE_URL=postgresql://postgres:password@localhost:5432/finance_db
 SECRET_KEY=your_secret_key
@@ -110,47 +133,52 @@ ALGORITHM=HS256
 ACCESS_TOKEN_EXPIRE_MINUTES=30
 JWT_ISSUER=finance-tracker
 JWT_AUDIENCE=finance-users
+```
 
-6. Run the App
+### 6. Run the App
 
 Start the FastAPI application with:
+```bash
 uvicorn app.main:app --reload
+```
 
-7. API Docs
+### 7. API Docs
 
 After running the server, API documentation is available at:
 
-Swagger UI: http://127.0.0.1:8000/docs
-ReDoc: http://127.0.0.1:8000/redoc
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
 
-8. Main Endpoints
+### 8. Main Endpoints
 
-Auth
-POST /api/v1/auth/register — Register a new user
-POST /api/v1/auth/login — Login and receive access token
+#### Auth
+- `POST /api/v1/auth/register` — Register a new user
+- `POST /api/v1/auth/login` — Log in and receive an access token
 
-Accounts
-POST /api/v1/accounts/ — Create a new account
-GET /api/v1/accounts/ — Get all user accounts
+#### Accounts
+- `POST /api/v1/accounts/` — Create a new account
+- `GET /api/v1/accounts/` — Get all user accounts
 
-Transactions
-POST /api/v1/transactions/ — Add a new transaction
-GET /api/v1/transactions/ — Get all user transactions
+#### Transactions
+- `POST /api/v1/transactions/` — Add a new transaction
+- `GET /api/v1/transactions/` — Get all user transactions
+- `DELETE /api/v1/transactions/{transaction_id}` — Delete a transaction
 
-Categories
-POST /api/v1/categories/ — Create a category
-GET /api/v1/categories/ — Get user categories
+#### Categories
+- `POST /api/v1/categories/` — Create a category
+- `GET /api/v1/categories/` — Get user categories
 
-Budgets
-POST /api/v1/budgets/ — Create a budget
-GET /api/v1/budgets/ — Get all budgets
+#### Budgets
+- `POST /api/v1/budgets/` — Create a budget
+- `GET /api/v1/budgets/` — Get all budgets
+- `PUT /api/v1/budgets/{budget_id}` — Update an existing budget
 
-9. Workflow
+### 9. Workflow
 
-User registers and logs in to the application
-User creates an account such as Cash, Bank, or Wallet
-User adds income and expense transactions
-User organizes transactions using categories
-User creates budgets to manage spending
-User allocates amounts to specific categories inside a budget
-User tracks financial activity and budget usage through API responses
+- User registers and logs in to the application
+- User creates an account such as Cash, Bank, or Wallet
+- User adds income and expense transactions
+- User organizes transactions using categories
+- User creates budgets to manage spending
+- User allocates amounts to specific categories inside a budget
+- User tracks financial activity and budget usage through API responses
